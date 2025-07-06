@@ -75,7 +75,7 @@ const App: React.FC = () => {
       dx: BALL_SPEED * Math.cos(getRandomAngle()),
       dy: -BALL_SPEED * Math.sin(getRandomAngle()),
     });
-  }, [gameSize.width, gameSize.height]);
+  }, [gameSize.width, gameSize.height, PADDLE_WIDTH, BALL_SPEED]);
 
   // Paddle movement with keyboard (update for dynamic width)
   useEffect(() => {
