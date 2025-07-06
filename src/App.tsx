@@ -303,6 +303,39 @@ const App: React.FC = () => {
               </div>
             )}
           </div>
+          {/* On-screen control buttons for mobile */}
+          {isMobile && !gameOver && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16, gap: 32 }}>
+              <button
+                style={{ fontSize: 32, padding: '12px 24px', borderRadius: 12, background: '#232946', color: '#fff', border: '2px solid #09f', boxShadow: '0 2px 8px #09f4', touchAction: 'none' }}
+                onTouchStart={e => {
+                  e.preventDefault();
+                  setPaddleX(x => Math.max(0, x - 0.12 * gameSize.width));
+                }}
+                onMouseDown={e => {
+                  e.preventDefault();
+                  setPaddleX(x => Math.max(0, x - 0.12 * gameSize.width));
+                }}
+                aria-label="Move Left"
+              >
+                ⬅️
+              </button>
+              <button
+                style={{ fontSize: 32, padding: '12px 24px', borderRadius: 12, background: '#232946', color: '#fff', border: '2px solid #09f', boxShadow: '0 2px 8px #09f4', touchAction: 'none' }}
+                onTouchStart={e => {
+                  e.preventDefault();
+                  setPaddleX(x => Math.min(gameSize.width - PADDLE_WIDTH, x + 0.12 * gameSize.width));
+                }}
+                onMouseDown={e => {
+                  e.preventDefault();
+                  setPaddleX(x => Math.min(gameSize.width - PADDLE_WIDTH, x + 0.12 * gameSize.width));
+                }}
+                aria-label="Move Right"
+              >
+                ➡️
+              </button>
+            </div>
+          )}
         </main>
         {!showWelcome && (
           <footer className="game-footer">
