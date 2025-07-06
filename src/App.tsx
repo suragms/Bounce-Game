@@ -194,7 +194,6 @@ const App: React.FC = () => {
   // Device orientation (tilt) control for paddle
   useEffect(() => {
     if (!isMobile) return;
-    let permissionGranted = false;
     let handler: ((e: DeviceOrientationEvent) => void) | null = null;
 
     const setupListener = () => {
@@ -219,7 +218,6 @@ const App: React.FC = () => {
       if (tiltPermissionRequested) {
         (DeviceOrientationEvent as any).requestPermission().then((response: string) => {
           if (response === 'granted') {
-            permissionGranted = true;
             setupListener();
           }
         });
