@@ -31,11 +31,6 @@ A fun and challenging reflex-based game built using **React.js**. Move your padd
 | Vite / CRA    | React build tool (update if needed) |
 | Netlify       | Deployment platform (planned)  |
 
----
-
-
----
-
 ## 📦 Installation
 
 > Run the project locally:
@@ -62,10 +57,9 @@ npm start
 
 # Open in browser
 http://localhost:3000
+
 📁 Project Structure
-plaintext
-Copy
-Edit
+
 Bounce-Game/
 ├── public/               # Static files
 ├── src/                  # Game components & logic
