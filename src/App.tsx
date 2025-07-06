@@ -185,6 +185,55 @@ const App: React.FC = () => {
   const requestRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [tiltSupported, setTiltSupported] = useState(false);
+  const [tiltPermissionRequested, setTiltPermissionRequested] = useState(false);
+
+  // Detect mobile device
+  const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+  // Device orientation (tilt) control for paddle
+  useEffect(() => {
+    if (!isMobile) return;
+    let permissionGranted = false;
+    let handler: ((e: DeviceOrientationEvent) => void) | null = null;
+
+    const setupListener = () => {
+      handler = (event: DeviceOrientationEvent) => {
+        if (gameOver || !event.gamma) return;
+        // gamma: left/right tilt, range ~[-90, 90]
+        // Map gamma to paddleX
+        const gamma = Math.max(-45, Math.min(45, event.gamma)); // Clamp for safety
+        const percent = (gamma + 45) / 90; // 0 (left) to 1 (right)
+        const newX = percent * (gameSize.width - PADDLE_WIDTH);
+        setPaddleX(Math.max(0, Math.min(newX, gameSize.width - PADDLE_WIDTH)));
+      };
+      window.addEventListener('deviceorientation', handler, true);
+      setTiltSupported(true);
+    };
+
+    // iOS 13+ requires permission
+    if (
+      typeof (window as any).DeviceOrientationEvent !== 'undefined' &&
+      typeof (DeviceOrientationEvent as any).requestPermission === 'function'
+    ) {
+      if (tiltPermissionRequested) {
+        (DeviceOrientationEvent as any).requestPermission().then((response: string) => {
+          if (response === 'granted') {
+            permissionGranted = true;
+            setupListener();
+          }
+        });
+      }
+      // else: wait for user to click button
+    } else if (typeof window.DeviceOrientationEvent !== 'undefined') {
+      setupListener();
+    }
+
+    return () => {
+      if (handler) window.removeEventListener('deviceorientation', handler, true);
+    };
+    // eslint-disable-next-line
+  }, [isMobile, tiltPermissionRequested, gameOver, gameSize.width, PADDLE_WIDTH]);
 
   return (
     <div className="game-bg">
@@ -194,6 +243,11 @@ const App: React.FC = () => {
             <div className="welcome-form">
               <h1>Welcome to Bounce Game! 🏓</h1>
               <p>Test your reflexes. Move the paddle with your mouse or arrow keys. Try to beat the high score!</p>
+              {isMobile && typeof (window as any).DeviceOrientationEvent !== 'undefined' && typeof (DeviceOrientationEvent as any).requestPermission === 'function' && !tiltPermissionRequested && (
+                <button onClick={() => setTiltPermissionRequested(true)}>
+                  Enable Tilt Control
+                </button>
+              )}
               <button onClick={() => setShowWelcome(false)}>Start Game</button>
             </div>
           </div>
@@ -255,7 +309,13 @@ const App: React.FC = () => {
         {!showWelcome && (
           <footer className="game-footer">
             <span className="footer-icon" role="img" aria-label="mouse">🖱️</span> Move: Mouse &nbsp;|&nbsp;
-            <span className="footer-icon" role="img" aria-label="arrow">⬅️➡️</span> Arrows &nbsp;|&nbsp;
+            <span className="footer-icon" role="img" aria-label="arrow">⬅️➡️</span> Arrows
+            {tiltSupported && isMobile && (
+              <>
+                &nbsp;|&nbsp;<span className="footer-icon" role="img" aria-label="tilt">📱</span> Tilt
+              </>
+            )}
+            &nbsp;|&nbsp;
             <span className="footer-icon" role="img" aria-label="goal">🎯</span> Don't miss the ball!
           </footer>
         )}
